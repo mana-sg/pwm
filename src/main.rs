@@ -1,11 +1,14 @@
 mod crypto;
+mod encoding;
 mod file;
+mod types;
 
 use clap::{Arg, Command};
+use std::io;
 
 fn main() {
-    let _ = crypto::test();
-    let file_path = "passwords.txt";
+    let mut master_pwd = String::new();
+    let file_path = "passwords.bin";
     let matches = Command::new("pwm")
         .version("0.1.0")
         .author("Manas github.com/mana-sg")
@@ -30,10 +33,14 @@ fn main() {
 
     match matches.subcommand() {
         Some(("add", sub_matches)) => {
+            if master_pwd.is_empty() {
+                println!("Enter the master password: ");
+                io::stdin().read_line(&mut master_pwd).unwrap();
+            }
             let name = sub_matches.get_one::<String>("name").unwrap();
             let pwd = sub_matches.get_one::<String>("password").unwrap();
 
-            let result = file::add_new_value(file_path, name, pwd);
+            let result = file::add_new_value(file_path, name, pwd, master_pwd.as_str());
 
             match result {
                 Ok(_) => {
@@ -64,9 +71,13 @@ fn main() {
             }
         }
         Some(("get", sub_matches)) => {
-            let name = sub_matches.get_one::<String>("name").unwrap();
+            if master_pwd.is_empty() {
+                println!("Enter the master password: ");
+                io::stdin().read_line(&mut master_pwd).unwrap();
+            }
+            let platform = sub_matches.get_one::<String>("name").unwrap();
 
-            let result = file::get_password(file_path, name);
+            let result = file::get_password(file_path, platform, master_pwd.as_str());
 
             match result {
                 Ok(password) => {
