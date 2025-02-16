@@ -1,17 +1,35 @@
 BINARY_NAME = pwm
-INSTALL_DIR = /usr/local/bin
+BUILD_DIR = target/release
+
+# Detect OS
+
+ifeq ($(OS),Windows_NT)
+    INSTALL_DIR = C:\Program Files\$(BINARY_NAME)
+    COPY_CMD = copy /Y
+    RM_CMD = del /F /Q
+    MKDIR_CMD = if not exist "$(INSTALL_DIR)" mkdir "$(INSTALL_DIR)"
+    RMDIR_CMD = rmdir /S /Q
+else
+    INSTALL_DIR = /usr/local/bin
+    COPY_CMD = sudo cp
+    RM_CMD = sudo rm -f
+    MKDIR_CMD = sudo mkdir -p
+    RMDIR_CMD = sudo rm -rf
+endif
 
 build:
 	cargo build --release -q
 
 install: build
 	@echo "Installing $(BINARY_NAME) to $(INSTALL_DIR)..."
-	@sudo cp target/release/$(BINARY_NAME) $(INSTALL_DIR)
+	@$(MKDIR_CMD) "$(INSTALL_DIR)"
+	@$(COPY_CMD) "$(BUILD_DIR)/$(BINARY_NAME)" "$(INSTALL_DIR)"
 	@echo "Installation complete!"
 
 uninstall:
 	@echo "Removing $(BINARY_NAME) from $(INSTALL_DIR)..."
-	@sudo rm -f $(INSTALL_DIR)/$(BINARY_NAME)
+	@$(RM_CMD) "$(INSTALL_DIR)/$(BINARY_NAME)"
+	@$(RMDIR_CMD) "$(INSTALL_DIR)"
 	@echo "Uninstallation complete!"
 
 clean:
