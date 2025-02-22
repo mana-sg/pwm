@@ -29,7 +29,6 @@ install: build
 uninstall:
 	@echo "Removing $(BINARY_NAME) from $(INSTALL_DIR)..."
 	@$(RM_CMD) "$(INSTALL_DIR)/$(BINARY_NAME)"
-	@$(RMDIR_CMD) "$(INSTALL_DIR)"
 	@echo "Uninstallation complete!"
 
 clean:
